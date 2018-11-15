@@ -65,7 +65,7 @@ def test_create_lookup_tables(create_lookup_tables):
     assert not (int_to_vocab_word_set - vocab_to_int_word_set),\
         'vocab_to_int and int_to_vocab don\'t have the same words.' \
         '{} found in int_to_vocab, but not in vocab_to_int'.format(int_to_vocab_word_set - vocab_to_int_word_set)
-
+    
     # Make sure the dicts have the same word ids
     vocab_to_int_word_id_set = set(vocab_to_int.values())
     int_to_vocab_word_id_set = set(int_to_vocab.keys())
@@ -76,13 +76,12 @@ def test_create_lookup_tables(create_lookup_tables):
     assert not (int_to_vocab_word_id_set - vocab_to_int_word_id_set),\
         'vocab_to_int and int_to_vocab don\'t contain the same word ids.' \
         '{} found in int_to_vocab, but not in vocab_to_int'.format(int_to_vocab_word_id_set - vocab_to_int_word_id_set)
-
+    
     # Make sure the dicts make the same lookup
     missmatches = [(word, id, id, int_to_vocab[id]) for word, id in vocab_to_int.items() if int_to_vocab[id] != word]
     
     assert not missmatches,\
-        'Found {} missmatche(s). First missmatch: vocab_to_int[{}] = {} and int_to_vocab[{}] = {}'.format(
-                                                                                                          len(missmatches),
+        'Found {} missmatche(s). First missmatch: vocab_to_int[{}] = {} and int_to_vocab[{}] = {}'.format(len(missmatches),
                                                                                                           *missmatches[0])
     
     assert len(vocab_to_int) > len(set(test_text))/2,\
@@ -121,7 +120,7 @@ def test_tokenize(token_lookup):
     assert not key_has_spaces,\
         'The key "{}" includes spaces. Remove spaces from keys and values'.format(key_has_spaces[0])
     assert not val_has_spaces,\
-        'The value "{}" includes spaces. Remove spaces from keys and values'.format(val_has_spaces[0])
+    'The value "{}" includes spaces. Remove spaces from keys and values'.format(val_has_spaces[0])
     
     # Check for symbols in values
     symbol_val = ()
@@ -155,7 +154,7 @@ def test_rnn(RNN, train_on_gpu):
     b = torch.from_numpy(a)
     hidden = rnn.init_hidden(batch_size)
     
-
+    
     if(train_on_gpu):
         rnn.cuda()
         b = b.cuda()
@@ -170,7 +169,7 @@ def test_rnn(RNN, train_on_gpu):
                              'Batch Size': batch_size,
                              'Sequence Length': sequence_length,
                              'Input': b})
-
+    
     # initialization
     correct_hidden_size = (n_layers, batch_size, hidden_dim)
     assert_condition = hidden[0].size() == correct_hidden_size
@@ -184,7 +183,6 @@ def test_rnn(RNN, train_on_gpu):
     assert_test.test(assert_condition, assert_message)
     
     correct_output_size = (batch_size, output_size)
-    #correct_output_size = (batch_size*sequence_length, output_size)
     assert_condition = output.size() == correct_output_size
     assert_message = 'Wrong output size. Expected type {}. Got type {}'.format(correct_output_size, output.size())
     assert_test.test(assert_condition, assert_message)
@@ -220,12 +218,12 @@ def test_forward_back_prop(RNN, forward_back_prop, train_on_gpu):
         
         loss, hidden_out = forward_back_prop(mock_decoder, mock_decoder_optimizer, mock_criterion, inp, target, hidden)
     
-        assert (hidden_out[0][0]==hidden[0][0]).sum()==batch_size*hidden_dim, 'Returned hidden state is the incorrect size.'
-        
-        assert mock_decoder.zero_grad.called or mock_decoder_optimizer.zero_grad.called, 'Didn\'t set the gradients to 0.'
-        assert mock_decoder.forward_called, 'Forward propagation not called.'
-        assert mock_autograd_backward.called, 'Backward propagation not called'
-        assert mock_decoder_optimizer.step.called, 'Optimization step not performed'
-        assert type(loss) == float, 'Wrong return type. Exptected {}, got {}'.format(float, type(loss))
+    assert (hidden_out[0][0]==hidden[0][0]).sum()==batch_size*hidden_dim, 'Returned hidden state is the incorrect size.'
+    
+    assert mock_decoder.zero_grad.called or mock_decoder_optimizer.zero_grad.called, 'Didn\'t set the gradients to 0.'
+    assert mock_decoder.forward_called, 'Forward propagation not called.'
+    assert mock_autograd_backward.called, 'Backward propagation not called'
+    assert mock_decoder_optimizer.step.called, 'Optimization step not performed'
+    assert type(loss) == float, 'Wrong return type. Expected {}, got {}'.format(float, type(loss))
     
     _print_success_message()
